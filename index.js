@@ -34,11 +34,23 @@ app.get('/api/persons/:id', (request, response) => {
     if (person)
         response.json(person)
     else
-        response.statusCode(404).end()
+        response.status(404).end()
 })
 
 app.get('/api/persons', (request, response) => {
     response.json(persons)
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+    const id = parseInt(request.params.id)
+    const person = persons.find(p => p.id === id)
+    if (person) {
+        const indice = persons.findIndex(p => p.id === id)
+        persons.splice(indice, 1)
+        response.status(200).end()
+    } else {
+        response.status(404).end()
+    }
 })
 
 const PORT = 3001

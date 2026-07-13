@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 const persons = [
     {
         "id": 1,
@@ -23,6 +25,11 @@ const persons = [
         "number": "39-23-6423122"
     }
 ]
+
+const generateID = () => {
+    return Math.floor(Math.random() * 9999999) + 1;
+
+}
 
 app.get('/info', (request, response) => {
     response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date().toString()}</p>`)
@@ -51,6 +58,20 @@ app.delete('/api/persons/:id', (request, response) => {
     } else {
         response.status(404).end()
     }
+})
+
+app.post('/api/persons', (request, response) => {
+    const person = request.body
+    if (!person.name || !person.number) {
+        response.status(422).end
+    }
+    const newPerson = {
+        id: generateID(),
+        name: person.name,
+        number: person.number
+    }
+    persons.push(newPerson)
+    response.status(200).json(newPerson)
 })
 
 const PORT = 3001

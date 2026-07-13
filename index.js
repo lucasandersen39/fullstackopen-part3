@@ -1,5 +1,6 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 const app = express()
 
@@ -10,6 +11,7 @@ morgan.token('body', function getBody(req) {
         return ""
 })
 
+app.use(cors())
 app.use(express.json())
 app.use(morgan(':method :url :status :pid :response-time ms :body'))
 
@@ -90,6 +92,22 @@ app.post('/api/persons', (request, response) => {
     }
     persons.push(newPerson)
     response.status(200).json(newPerson)
+})
+
+app.put('/api/persons/:id', (request, response) => {
+    const id = parseInt(request.params.id)
+    const person = persons.find(p => p.id === id)
+    if (person) {
+        if (request.body.name && request.body.name !== "") {
+            person.name = request.body.name
+        }
+        if (request.body.number && request.body.number !== "") {
+            person.number = request.body.number
+        }
+        response.status(200).json(person)
+    } else {
+        response.status(404).json({ "error": "Person not found" })
+    }
 })
 
 const PORT = 3001

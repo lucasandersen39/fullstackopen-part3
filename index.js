@@ -77,6 +77,19 @@ app.delete('/api/persons/:id', (request, response) => {
     }
 })
 
+const verifyNumber = async (number) => {
+    console.log("Verificando number")
+    Person.find({ "number": person.number })
+        .then(result => {
+            return result
+            /* if (result) {
+                return response.status(400).json({
+                    error: "The number already exist"
+                })
+            } */
+        })
+}
+
 app.post('/api/persons', (request, response) => {
     const person = request.body
     if (!person.name || !person.number) {
@@ -84,19 +97,30 @@ app.post('/api/persons', (request, response) => {
             error: 'name and number are required'
         })
     }
-    const existNumber = persons.find(p => p.number === person.number)
+    const existNumber = await verifyNumber(person.number)
+    console.log("Recuperado el number", existNumber)
     if (existNumber) {
+        console.log("El numero existe");
+
         return response.status(400).json({
             error: "The number already exist"
         })
     }
-    const newPerson = {
-        id: generateID(),
+    console.log("El numero esta disponible");
+
+    const newPerson = new Person({
         name: person.name,
         number: person.number
-    }
-    persons.push(newPerson)
-    response.status(200).json(newPerson)
+    })
+
+    person.save().then(result => {
+        console.log(`added ${newPerson.name} number ${newPerson.number} to phonebook`)
+        mongoose.connection.close()
+        response.status(200).json(newPerson)
+    }).catch((error) => {
+        console.log("Error save", error)
+        response.status(500).json({ "error": "Coudn't save person" })
+    })
 })
 
 app.put('/api/persons/:id', (request, response) => {
@@ -114,6 +138,12 @@ app.put('/api/persons/:id', (request, response) => {
         response.status(404).json({ "error": "Person not found" })
     }
 })
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

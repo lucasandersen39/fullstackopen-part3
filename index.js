@@ -63,7 +63,15 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response) => {
     const person = request.body
     if (!person.name || !person.number) {
-        response.status(422).end
+        return response.status(400).json({
+            error: 'name and number are required'
+        })
+    }
+    const existNumber = persons.find(p => p.number === person.number)
+    if (existNumber) {
+        return response.status(400).json({
+            error: "The number already exist"
+        })
     }
     const newPerson = {
         id: generateID(),

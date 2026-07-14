@@ -77,27 +77,19 @@ app.delete('/api/persons/:id', (request, response) => {
     }
 })
 
-const verifyNumber = async (number) => {
+const verifyNumber = (number) => {
     console.log("Verificando number")
-    Person.find({ "number": person.number })
-        .then(result => {
-            return result
-            /* if (result) {
-                return response.status(400).json({
-                    error: "The number already exist"
-                })
-            } */
-        })
+    return Person.findOne({ "number": number })
 }
 
-app.post('/api/persons', (request, response) => {
-    const person = request.body
-    if (!person.name || !person.number) {
+app.post('/api/persons', async (request, response) => {
+    const personReq = request.body
+    if (!personReq.name || !personReq.number) {
         return response.status(400).json({
             error: 'name and number are required'
         })
     }
-    const existNumber = await verifyNumber(person.number)
+    const existNumber = await verifyNumber(personReq.number)
     console.log("Recuperado el number", existNumber)
     if (existNumber) {
         console.log("El numero existe");
@@ -109,13 +101,12 @@ app.post('/api/persons', (request, response) => {
     console.log("El numero esta disponible");
 
     const newPerson = new Person({
-        name: person.name,
-        number: person.number
+        name: personReq.name,
+        number: personReq.number
     })
 
-    person.save().then(result => {
+    newPerson.save().then(result => {
         console.log(`added ${newPerson.name} number ${newPerson.number} to phonebook`)
-        mongoose.connection.close()
         response.status(200).json(newPerson)
     }).catch((error) => {
         console.log("Error save", error)

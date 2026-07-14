@@ -52,7 +52,7 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
     const id = parseInt(request.params.id)
-    const person = persons.find(p => p.id === id)
+    const person = Person.findById(id)
     if (person)
         response.json(person)
     else
@@ -77,11 +77,6 @@ app.delete('/api/persons/:id', (request, response) => {
     }
 })
 
-const verifyNumber = (number) => {
-    console.log("Verificando number")
-    return Person.findOne({ "number": number })
-}
-
 app.post('/api/persons', async (request, response) => {
     const personReq = request.body
     if (!personReq.name || !personReq.number) {
@@ -89,16 +84,12 @@ app.post('/api/persons', async (request, response) => {
             error: 'name and number are required'
         })
     }
-    const existNumber = await verifyNumber(personReq.number)
-    console.log("Recuperado el number", existNumber)
+    const existNumber = await Person.findOne({ "number": personReq.number })
     if (existNumber) {
-        console.log("El numero existe");
-
         return response.status(400).json({
             error: "The number already exist"
         })
     }
-    console.log("El numero esta disponible");
 
     const newPerson = new Person({
         name: personReq.name,

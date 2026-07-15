@@ -68,9 +68,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = parseInt(request.params.id)
-    const person = persons.find(p => p.id === id)
-    Person.findByIdAndDelete(id)
+    Person.findByIdAndDelete(request.params.id)
         .then(result => {
             console.log("Result delete: ", result)
             response.status(204).end()

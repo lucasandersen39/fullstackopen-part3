@@ -64,15 +64,15 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 //Modified
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
     Person.find({}).then(persons => {
         response.json(persons)
     })
+        .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
-    const id = parseInt(request.params.id)
-    Person.findByIdAndDelete(id)
+    Person.findByIdAndDelete(request.params.id)
         .then(result => {
             console.log("Result delete: ", result)
             response.status(204).end()
@@ -81,7 +81,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 })
 
 // Modified
-app.post('/api/persons', async (request, response) => {
+app.post('/api/persons', async (request, response, next) => {
     const personReq = request.body
     if (!personReq.name || !personReq.number) {
         return response.status(400).json({
@@ -103,10 +103,7 @@ app.post('/api/persons', async (request, response) => {
     newPerson.save().then(result => {
         console.log(`added ${newPerson.name} number ${newPerson.number} to phonebook`)
         response.status(200).json(newPerson)
-    }).catch((error) => {
-        console.log("Error save", error)
-        response.status(500).json({ "error": "Coudn't save person" })
-    })
+    }).catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response) => {

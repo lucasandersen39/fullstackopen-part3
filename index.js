@@ -18,37 +18,9 @@ app.use(express.json())
 app.use(morgan(':method :url :status :pid :response-time ms :body'))
 app.use(express.static('dist'))
 
-const persons = [
-    {
-        "id": 1,
-        "name": "Arto Hellas",
-        "number": "040-123456"
-    },
-    {
-        "id": 2,
-        "name": "Ada Lovelace",
-        "number": "39-44-5323523"
-    },
-    {
-        "id": 3,
-        "name": "Dan Abramov",
-        "number": "12-43-234345"
-    },
-    {
-        "id": 4,
-        "name": "Mary Poppendieck",
-        "number": "39-23-6423122"
-    }
-]
-
-const generateID = () => {
-    return Math.floor(Math.random() * 9999999) + 1;
-
-}
-
 // Modified
 app.get('/info', (request, response, next) => {
-    const count = Person.countDocuments({})
+    Person.countDocuments({})
         .then(count => {
             response.send(`<p>Phonebook has info for ${count} people</p><p>${new Date().toString()}</p>`)
         })
@@ -101,7 +73,7 @@ app.post('/api/persons', async (request, response, next) => {
         number: personReq.number
     })
 
-    newPerson.save().then(result => {
+    newPerson.save().then(() => {
         console.log(`added ${newPerson.name} number ${newPerson.number} to phonebook`)
         response.status(200).json(newPerson)
     }).catch(error => next(error))

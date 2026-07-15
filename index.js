@@ -50,6 +50,7 @@ app.get('/info', (request, response) => {
     response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date().toString()}</p>`)
 })
 
+//Modified
 app.get('/api/persons/:id', (request, response) => {
     const id = parseInt(request.params.id)
     const person = Person.findById(id)
@@ -59,6 +60,7 @@ app.get('/api/persons/:id', (request, response) => {
         response.status(404).end()
 })
 
+//Modified
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(persons => {
         response.json(persons)
@@ -77,6 +79,7 @@ app.delete('/api/persons/:id', (request, response) => {
     }
 })
 
+// Modified
 app.post('/api/persons', async (request, response) => {
     const personReq = request.body
     if (!personReq.name || !personReq.number) {

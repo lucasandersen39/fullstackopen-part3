@@ -51,12 +51,16 @@ app.get('/info', (request, response) => {
 })
 
 //Modified
-app.get('/api/persons/:id', (request, response) => {
-    const person = Person.findById(request.params.id)
-    if (person)
-        response.json(person)
-    else
-        response.status(404).end()
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+        .then(response => {
+            if (response)
+                response.status(200).json(response)
+            else
+                response.status(404).end()
+        })
+        .catch(error => next(error))  //Pasamos el error hacia adelante
+
 })
 
 //Modified
@@ -66,12 +70,14 @@ app.get('/api/persons', (request, response) => {
     })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    Person.findByIdAndDelete(request.params.id)
+app.delete('/api/persons/:id', (request, response, next) => {
+    const id = parseInt(request.params.id)
+    Person.findByIdAndDelete(id)
         .then(result => {
             console.log("Result delete: ", result)
             response.status(204).end()
         })
+        .catch(error => next(error))
 })
 
 // Modified
@@ -124,6 +130,18 @@ const unknownEndpoint = (request, response) => {
 }
 
 app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+    console.error("ERROR NAME:", error.name, " ERROR MESSAGE: ", error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+// Cargamos el middleware de manejador de errores al final
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

@@ -71,6 +71,7 @@ app.get('/api/persons', (request, response, next) => {
         .catch(error => next(error))
 })
 
+// Modified
 app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndDelete(request.params.id)
         .then(result => {
@@ -106,20 +107,17 @@ app.post('/api/persons', async (request, response, next) => {
     }).catch(error => next(error))
 })
 
-app.put('/api/persons/:id', (request, response) => {
-    const id = parseInt(request.params.id)
-    const person = persons.find(p => p.id === id)
-    if (person) {
-        if (request.body.name && request.body.name !== "") {
-            person.name = request.body.name
-        }
-        if (request.body.number && request.body.number !== "") {
-            person.number = request.body.number
-        }
-        response.status(200).json(person)
-    } else {
-        response.status(404).json({ "error": "Person not found" })
+// Modified
+app.put('/api/persons/:id', (request, response, next) => {
+    const personUpdate = {
+        name: request.body.name,
+        number: request.body.number
     }
+    Person.findByIdAndUpdate(request.params.id, personUpdate, { new: true })
+        .then(updatedPerson => {
+            response.status(200).json(updatedPerson)
+        })
+        .catch(error => next(error))
 })
 
 const unknownEndpoint = (request, response) => {

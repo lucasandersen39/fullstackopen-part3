@@ -46,16 +46,21 @@ const generateID = () => {
 
 }
 
-app.get('/info', (request, response) => {
-    response.send(`<p>Phonebook has info for ${persons.length} people</p><p>${new Date().toString()}</p>`)
+// Modified
+app.get('/info', (request, response, next) => {
+    const count = Person.countDocuments({})
+        .then(count => {
+            response.send(`<p>Phonebook has info for ${count} people</p><p>${new Date().toString()}</p>`)
+        })
+        .catch(error => next(error))
 })
 
 //Modified
 app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
-        .then(response => {
-            if (response)
-                response.status(200).json(response)
+        .then(person => {
+            if (person)
+                response.status(200).json(person)
             else
                 response.status(404).end()
         })

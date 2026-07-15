@@ -52,8 +52,7 @@ app.get('/info', (request, response) => {
 
 //Modified
 app.get('/api/persons/:id', (request, response) => {
-    const id = parseInt(request.params.id)
-    const person = Person.findById(id)
+    const person = Person.findById(request.params.id)
     if (person)
         response.json(person)
     else

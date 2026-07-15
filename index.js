@@ -70,13 +70,11 @@ app.get('/api/persons', (request, response) => {
 app.delete('/api/persons/:id', (request, response) => {
     const id = parseInt(request.params.id)
     const person = persons.find(p => p.id === id)
-    if (person) {
-        const indice = persons.findIndex(p => p.id === id)
-        persons.splice(indice, 1)
-        response.status(200).end()
-    } else {
-        response.status(404).end()
-    }
+    Person.findByIdAndDelete(id)
+        .then(result => {
+            console.log("Result delete: ", result)
+            response.status(204).end()
+        })
 })
 
 // Modified
